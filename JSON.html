@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Fetch JSON from API and map latitude and longitude</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+    </head>
+    <body>
+
+        <h1>Where is the ISS?</h1>
+
+        <p>
+        latitude: <span id="lat"></span><br />
+        longitude: <span id="lon"></span><br />
+        </p>
+
+
+        <div id = 'ISSMAP'></div>
+
+        <style>
+            #ISSMAP {
+                height: 180px;
+            }
+        </style>
+
+        <script>
+
+           
+// all the attribute info like setview and icon etc.. goes before actually making the icon in the const marker.
+        //    making a map and the tiles
+           const mymap = L.map('ISSMAP').setView([0, 0], 1);
+           
+           const attribution = '&copy; <a href = "https://www.openstreetmap.org/copyright">OpenStreetMaps</a> contributors'; 
+           const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+           const tiles = L.tileLayer(tileUrl, {attribution});
+
+            // adding the tiles to the map
+           tiles.addTo(mymap);
+
+        //   Making a marker with a custom space station icon
+           const ISSIcon = L.icon({
+                iconUrl: '320px-International_Space_Station.png',
+                iconSize: [50, 32],
+                iconAnchor: [25, 16]
+            });
+           
+           const marker = L.marker([0, 0], {icon: ISSIcon}).addTo(mymap);
+
+           const api_url = 'https://api.wheretheiss.at/v1/satellites/25544';
+
+           async function getISSData() {
+               const response = await fetch(api_url);
+               const data = await response.json();
+               const { latitude, longitude } = data;
+
+            //    L.marker([latitude, longitude]).addTo(mymap)
+
+               marker.setLatLng([latitude, longitude]);
+               document.getElementById('lat').textContent = latitude;
+               document.getElementById('lon').textContent = longitude;
+               console.log(data.latitude);
+               console.log(data.longitude);
+
+           }
+        //    calling the async function getISSData
+           getISSData();
+
+        </script>
+    </body>
+</html>
+
+
+<!-- JSON = data written into a file -->
+
+<!-- pos = a js object with lat and lon as attributes. -->
+<!-- used fetch function to retrieve data from a particular endpoint of an api at the url path stored in the variable api_url -->
+<!-- when get data back from fetch method, data comes as stream returned as a promise, must then format it by packaging it. -->
+<!-- create an async function that awaits a promise response from the fetch method, fetching data from the path in the api_url variable -->
+<!-- convert that response data into json format, and then log it. -->
+<!-- must call the async function in order for the function to execute. -->
+<!-- destructure the data to get latitude and longitude  -->
+<!-- take data and redisplay it into element on the webpage. -->
+<!-- js destructuring -->
+
+<!--DOCUMENT.GETELEMENTBYID is for actually displaying the data on the webpage -->
+
+
+<!-- call the getISSData it reaches out to api for the data that we need, and updates the marker's location and updates the latitude and longitude of it on the DOM.  -->

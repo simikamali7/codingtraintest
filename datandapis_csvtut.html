@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Fetch and Graph CSV</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"></script>
+   
+<!-- script src tag is for loading the chart.js -->
+   
+   
+    </head>
+    <body>
+        <canvas id ="chart" width ="800" height = "400"></canvas>
+        <script>
+            chartIt();
+            async function chartIt() {
+            const data = await getweatherData();
+            const ctx = document.getElementById('chart').getContext('2d');
+
+            const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: data.xs,
+        datasets: [{
+            label: 'global average temperature in celsius',
+            data: data.ys,
+            fill: false,
+            backgroundColor: [
+                'rgba(75, 192, 192, 0.2)',
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)', 
+            ],
+            borderWidth: 1
+            
+        }],
+    options: {
+        scales: {
+            y: {
+                ticks: {
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, values) {
+                        return value + "°";
+                    }
+                }
+            }
+        }
+    }
+    },
+});
+            }
+// call the async function for it to run.
+// convert the response from the fetch into a text.
+        getweatherData();
+
+        async function getweatherData() {
+            const xs = [];
+            const ys = [];
+            const response = await fetch("ZonAnn.Ts+dSST.csv");
+            const tabledata = await response.text();
+
+
+
+// split is a string method that splits - this is string parsing, '\n is to split it by linebreaks' 
+// .slice deletes the element at index 0 in the array of data.
+// forEach is a higher order functon that applies the logic in the function body to every element in the rows variable, each element in rows is represented by the row variable in the brackets.
+// this for each row, splits by the commas, this splts each elt element by its commas, making an array for each year.
+            const table = tabledata.split("\n").slice(1);
+            table.forEach(row => {
+                const columns = row.split(",");
+                const year = columns[0];
+                xs.push(year);
+                const temp = columns[1];
+                ys.push(parseFloat(temp) + 14)
+                console.log(year, temp);
+            });
+            return {xs, ys}
+        }  
+        </script>
+    </body>
+</html>
+
+
+<!-- fetch always returns a promise that must be handled. -->
+<!-- .text is to handle the response data stream as text. -->
+<!-- use string's split function -->
+
+<!--getting raw data as text, splitting it, put in variable tabledata, go through each row, and then   -->
